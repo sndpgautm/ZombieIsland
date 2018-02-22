@@ -8,8 +8,9 @@ public class Player : MonoBehaviour {
 	private Animator myAnimator;
 	//can be edited from the inspector window
 	[SerializeField]
-	private float walkingSpeed;
+	private float walkingSpeed=5;
 	private bool facingRight;
+	private bool isRunning;
 	[SerializeField]
 	private Transform[] groundPoints;
 	[SerializeField]
@@ -27,6 +28,7 @@ public class Player : MonoBehaviour {
 	void Start () {
 		
 		facingRight = true;
+		isRunning = false;
 		myRigidbody = GetComponent<Rigidbody2D> ();
 		myAnimator = GetComponent<Animator> ();
 	}
@@ -58,10 +60,28 @@ public class Player : MonoBehaviour {
 			myAnimator.SetBool ("land", true);
 		}
 		//can only move if the player is on ground and has air control
-		if(isGrounded || airControl){
+		if(isGrounded || airControl)
+		{
 			//moves the player
-			myRigidbody.velocity = new Vector2 (horizontal*walkingSpeed, myRigidbody.velocity.y);
-			myAnimator.SetFloat ("speed", Mathf.Abs(horizontal)); //speed is case sensitive and horizontal is made positive to compare
+
+			if (isRunning && Mathf.Abs(horizontal)>0.01) /* checks if the running button is pressed or not and turns
+			the run animation only when both shift and direction keys are pressed*/
+			{ 
+				myRigidbody.velocity = new Vector2 (horizontal*walkingSpeed*2, myRigidbody.velocity.y);
+				/*speed is case sensitive and horizontal is made positive to compare
+				player goes right if speed is greater than 0.01 and left if less than 0.01
+				checks horizontal to see if the player pressed left or right button
+				speed is greater than 0.01 if the speed if player presses right and vice versa*/
+				myAnimator.SetFloat ("speed", Mathf.Abs(horizontal));
+				myAnimator.SetBool ("run", true);
+				myAnimator.SetFloat("movementSpeed", walkingSpeed*2);
+			} else {
+				myRigidbody.velocity = new Vector2 (horizontal*walkingSpeed, myRigidbody.velocity.y);
+				myAnimator.SetFloat ("speed", Mathf.Abs(horizontal));
+				myAnimator.SetBool ("run", false);
+				myAnimator.SetFloat("movementSpeed", walkingSpeed);
+			}
+
 
 		}
 
@@ -78,9 +98,12 @@ public class Player : MonoBehaviour {
 	//Handles the input keyss
 	private void HandleInput()
 	{
-		if (Input.GetKeyDown (KeyCode.Space)) 
+		if (Input.GetKeyDown(KeyCode.Space)) //GetKeyDown When key is pressed once
 		{
 			jump = true;
+		}
+		if(Input.GetKey(KeyCode.LeftShift)){ //GetKey Checks when key is pressed continuously
+			isRunning = true;
 		}
 	}
 
@@ -102,6 +125,7 @@ public class Player : MonoBehaviour {
 	private void ResetValues()
 	{
 		jump = false;
+		isRunning = false;
 	}
 
 	//Checks if the player is standing on the ground
