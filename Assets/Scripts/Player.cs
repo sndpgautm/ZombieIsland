@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
 	private Animator myAnimator;
 	//can be edited from the inspector window
 	[SerializeField]
-	private float walkingSpeed=5;
+	private float walkingSpeed=4;
 	private bool facingRight;
 	private bool isRunning;
 	[SerializeField]
