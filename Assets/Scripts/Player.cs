@@ -4,32 +4,50 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 
-	private Rigidbody2D myRigidbody;
+
+	private static Player instance;
+	public static Player Instance
+	{ 
+		get
+		{
+			if (instance == null) 
+			{
+				instance = GameObject.FindObjectOfType<Player> ();
+			}
+			return instance;
+		}
+	}
+
 	private Animator myAnimator;
 	//can be edited from the inspector window
-	[SerializeField]
-	private float walkingSpeed=4;
 	private bool facingRight;
-	private bool isRunning;
 	[SerializeField]
 	private Transform[] groundPoints;
 	[SerializeField]
 	private float groundRadius;
 	[SerializeField]
 	private LayerMask whatIsGround;
-	private bool isGrounded;
-	private bool jump;
 	[SerializeField]
 	private bool airControl;
 	[SerializeField]
 	private float jumpForce;
 
+	//properties are written different to variables starting with capital letter
+	public Rigidbody2D MyRigidbody { get; set;}
+	public bool Jump { get; set;}
+	public bool OnGround{ get; set;}
+	public bool IsRunning{ get; set;}
+	[SerializeField]
+	public float WalkingSpeed{ get; set;}
+
+
 	// Use this for initialization
 	void Start () {
 		
 		facingRight = true;
-		isRunning = false;
-		myRigidbody = GetComponent<Rigidbody2D> ();
+		IsRunning = false;
+		WalkingSpeed=4;
+		MyRigidbody = GetComponent<Rigidbody2D> ();
 		myAnimator = GetComponent<Animator> ();
 	}
 	
@@ -44,55 +62,46 @@ public class Player : MonoBehaviour {
 	void FixedUpdate () 
 	{
 		float horizontal = Input.GetAxis ("Horizontal");
-		isGrounded = IsGrounded ();
+		OnGround = IsGrounded ();
 		HandleMovement (horizontal);
 		Flip (horizontal);
-		HandleLayers ();
+		HandleLayers();
 		ResetValues ();
 	}
 
 	//handles the movement of player
 	private void HandleMovement(float horizontal)
 	{
-		//checks if the player is falling toward s ground
-		if (myRigidbody.velocity.y < 0)
+
+		if (MyRigidbody.velocity.y < 0) 
 		{
 			myAnimator.SetBool ("land", true);
 		}
-		//can only move if the player is on ground and has air control
-		if(isGrounded || airControl)
-		{
-			//moves the player
-
-			if (isRunning && Mathf.Abs(horizontal)>0.01) /* checks if the running button is pressed or not and turns
-			the run animation only when both shift and direction keys are pressed*/
+		if (OnGround || airControl) {
+			if (IsRunning && Mathf.Abs(horizontal)>0.01)
+				/* checks if the running button is pressed or not and turns
+				the run animation only when both shift and direction keys are pressed*/
 			{ 
-				myRigidbody.velocity = new Vector2 (horizontal*walkingSpeed*2, myRigidbody.velocity.y);
+				MyRigidbody.velocity = new Vector2 (horizontal*WalkingSpeed*2, MyRigidbody.velocity.y);
+				myAnimator.SetBool ("run", true);
+				myAnimator.SetFloat("movementSpeed", WalkingSpeed*2);
 				/*speed is case sensitive and horizontal is made positive to compare
 				player goes right if speed is greater than 0.01 and left if less than 0.01
 				checks horizontal to see if the player pressed left or right button
 				speed is greater than 0.01 if the speed if player presses right and vice versa*/
-				myAnimator.SetFloat ("speed", Mathf.Abs(horizontal));
-				myAnimator.SetBool ("run", true);
-				myAnimator.SetFloat("movementSpeed", walkingSpeed*2);
 			} else {
-				myRigidbody.velocity = new Vector2 (horizontal*walkingSpeed, myRigidbody.velocity.y);
-				myAnimator.SetFloat ("speed", Mathf.Abs(horizontal));
+				MyRigidbody.velocity = new Vector2 (horizontal*WalkingSpeed, MyRigidbody.velocity.y);
 				myAnimator.SetBool ("run", false);
-				myAnimator.SetFloat("movementSpeed", walkingSpeed);
+				myAnimator.SetFloat("movementSpeed", WalkingSpeed);
+
 			}
-
-
 		}
 
-
-		//used to jump the player
-		if (isGrounded && jump)
-		{
-			isGrounded = false;
-			myRigidbody.AddForce (new Vector2 (0, jumpForce));
-			myAnimator.SetTrigger ("jump");
+		if (Jump && MyRigidbody.velocity.y == 0) {
+			MyRigidbody.AddForce (new Vector2 (0, jumpForce));
 		}
+
+		myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
 	}
 
 	//Handles the input keyss
@@ -100,10 +109,10 @@ public class Player : MonoBehaviour {
 	{
 		if (Input.GetKeyDown(KeyCode.Space)) //GetKeyDown When key is pressed once
 		{
-			jump = true;
+			myAnimator.SetTrigger ("jump");
 		}
 		if(Input.GetKey(KeyCode.LeftShift)){ //GetKey Checks when key is pressed continuously
-			isRunning = true;
+			IsRunning = true;
 		}
 	}
 
@@ -121,17 +130,11 @@ public class Player : MonoBehaviour {
 	}
 
 
-	//Resets the values of jump, attack
-	private void ResetValues()
-	{
-		jump = false;
-		isRunning = false;
-	}
 
 	//Checks if the player is standing on the ground
 	private bool IsGrounded()
 	{
-		if (myRigidbody.velocity.y <= 0)
+		if (MyRigidbody.velocity.y <= 0)
 		{
 			foreach (Transform point in groundPoints)
 			{
@@ -141,8 +144,6 @@ public class Player : MonoBehaviour {
 				{
 					if (colliders [i].gameObject != gameObject) 
 					{	
-						myAnimator.ResetTrigger ("jump");
-						myAnimator.SetBool ("land", false);
 						return true;
 					}
 				}
@@ -150,11 +151,16 @@ public class Player : MonoBehaviour {
 		}
 		return false;
 	}
+
+	//resets the values
+	private void ResetValues(){
+		IsRunning = false;
+	}
 		
 	//Handles the animator layers
 	private void HandleLayers()
 	{
-		if (!isGrounded) {
+		if (!OnGround) {
 			myAnimator.SetLayerWeight (1, 1); //Layer weight is set to 1 and Layer number 1 refers to AirLayer
 		}else{
 			myAnimator.SetLayerWeight (1, 0); //0 refers to GroundLayer
