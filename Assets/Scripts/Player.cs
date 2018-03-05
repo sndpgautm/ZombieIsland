@@ -19,8 +19,11 @@ public class Player : MonoBehaviour {
 	}
 
 	private Animator myAnimator;
-	//can be edited from the inspector window
+	[SerializeField]
+	private Transform knifePos;
+
 	private bool facingRight;
+	//Serialized field can be edited from the inspector window
 	[SerializeField]
 	private Transform[] groundPoints;
 	[SerializeField]
@@ -31,6 +34,8 @@ public class Player : MonoBehaviour {
 	private bool airControl;
 	[SerializeField]
 	private float jumpForce;
+	[SerializeField]
+	private GameObject knifePrefab;
 
 	//properties are written different to variables starting with capital letter
 	public Rigidbody2D MyRigidbody { get; set;}
@@ -114,6 +119,10 @@ public class Player : MonoBehaviour {
 		if(Input.GetKey(KeyCode.LeftShift)){ //GetKey Checks when key is pressed continuously
 			IsRunning = true;
 		}
+
+		if (Input.GetKeyDown (KeyCode.V)) {
+			myAnimator.SetTrigger ("throw");
+		}
 	}
 
 
@@ -165,6 +174,26 @@ public class Player : MonoBehaviour {
 		}else{
 			myAnimator.SetLayerWeight (1, 0); //0 refers to GroundLayer
 		}
+	}
+
+	//Throws knife
+	public void ThrowKnife(int value)
+	{
+		//makes sure we only throw one knife at a time
+		if (!OnGround && value == 1 || OnGround && value == 0) 
+		{
+			if (facingRight)
+			{
+
+				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position , Quaternion.Euler(new Vector3(180,0,-90))); // rotates the knife
+				tmp.GetComponent<Knife>().Initialize(Vector2.right);
+			} else 
+			{
+				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position, Quaternion.Euler(new Vector3(0,0,90)));
+				tmp.GetComponent<Knife>().Initialize(Vector2.left);
+			}
+		}
+
 	}
 
 }
