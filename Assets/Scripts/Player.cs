@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour {
+public class Player : Character {
 
 
 	private static Player instance;
@@ -18,11 +18,9 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	private Animator myAnimator;
-	[SerializeField]
-	private Transform knifePos;
 
-	private bool facingRight;
+
+
 	//Serialized field can be edited from the inspector window
 	[SerializeField]
 	private Transform[] groundPoints;
@@ -35,25 +33,25 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	private float jumpForce;
 	[SerializeField]
+	private Transform knifePos;
+	[SerializeField]
 	private GameObject knifePrefab;
+
 
 	//properties are written different to variables starting with capital letter
 	public Rigidbody2D MyRigidbody { get; set;}
 	public bool Jump { get; set;}
 	public bool OnGround{ get; set;}
 	public bool IsRunning{ get; set;}
-	[SerializeField]
-	public float WalkingSpeed{ get; set;}
+	private Vector2 startPos;
 
 
 	// Use this for initialization
-	void Start () {
-		
-		facingRight = true;
+	public override void Start () {
+		base.Start();
 		IsRunning = false;
-		WalkingSpeed=4;
 		MyRigidbody = GetComponent<Rigidbody2D> ();
-		myAnimator = GetComponent<Animator> ();
+
 	}
 	
 	// Update is called once per frame
@@ -82,7 +80,7 @@ public class Player : MonoBehaviour {
 		{
 			myAnimator.SetBool ("land", true);
 		}
-		if (OnGround || airControl) {
+		if (!Attack && (OnGround || airControl)) {
 			if (IsRunning && Mathf.Abs(horizontal)>0.01)
 				/* checks if the running button is pressed or not and turns
 				the run animation only when both shift and direction keys are pressed*/
@@ -131,10 +129,7 @@ public class Player : MonoBehaviour {
 	private void Flip(float horizontal)
 	{
 		if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight) {
-			facingRight = !facingRight; //toggles the values true if its false and vice versa.
-			Vector3 theScale = transform.localScale; //referencing the local scale of player
-			theScale.x*=-1; //multiplying the value of x of scale by negative
-			transform.localScale = theScale; //changed the value of scale in Transform
+			ChangeDirection ();
 		}
 	}
 

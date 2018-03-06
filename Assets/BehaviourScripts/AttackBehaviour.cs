@@ -5,9 +5,14 @@ using UnityEngine;
 public class AttackBehaviour : StateMachineBehaviour {
 
 	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
-	//override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-	//
-	//}
+	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+		Player.Instance.Attack = true;
+
+		//Player stops if he is attacking
+		if (Player.Instance.OnGround) {
+			Player.Instance.MyRigidbody.velocity = Vector2.zero;
+		}
+	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
 	//override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
@@ -16,6 +21,8 @@ public class AttackBehaviour : StateMachineBehaviour {
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
 	override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+		Player.Instance.Attack = false;
+		animator.ResetTrigger ("attack");
 		animator.ResetTrigger ("throw");
 	}
 
