@@ -78,7 +78,7 @@ public class Player : Character {
 
 		if (MyRigidbody.velocity.y < 0) 
 		{
-			myAnimator.SetBool ("land", true);
+			MyAnimator.SetBool ("land", true);
 		}
 		if (!Attack && (OnGround || airControl)) {
 			if (IsRunning && Mathf.Abs(horizontal)>0.01)
@@ -86,16 +86,16 @@ public class Player : Character {
 				the run animation only when both shift and direction keys are pressed*/
 			{ 
 				MyRigidbody.velocity = new Vector2 (horizontal*WalkingSpeed*2, MyRigidbody.velocity.y);
-				myAnimator.SetBool ("run", true);
-				myAnimator.SetFloat("movementSpeed", WalkingSpeed*2);
+				MyAnimator.SetBool ("run", true);
+				MyAnimator.SetFloat("movementSpeed", WalkingSpeed*2);
 				/*speed is case sensitive and horizontal is made positive to compare
 				player goes right if speed is greater than 0.01 and left if less than 0.01
 				checks horizontal to see if the player pressed left or right button
 				speed is greater than 0.01 if the speed if player presses right and vice versa*/
 			} else {
 				MyRigidbody.velocity = new Vector2 (horizontal*WalkingSpeed, MyRigidbody.velocity.y);
-				myAnimator.SetBool ("run", false);
-				myAnimator.SetFloat("movementSpeed", WalkingSpeed);
+				MyAnimator.SetBool ("run", false);
+				MyAnimator.SetFloat("movementSpeed", WalkingSpeed);
 
 			}
 		}
@@ -104,7 +104,7 @@ public class Player : Character {
 			MyRigidbody.AddForce (new Vector2 (0, jumpForce));
 		}
 
-		myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
+		MyAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
 	}
 
 	//Handles the input keyss
@@ -112,14 +112,14 @@ public class Player : Character {
 	{
 		if (Input.GetKeyDown(KeyCode.Space)) //GetKeyDown When key is pressed once
 		{
-			myAnimator.SetTrigger ("jump");
+			MyAnimator.SetTrigger ("jump");
 		}
 		if(Input.GetKey(KeyCode.LeftShift)){ //GetKey Checks when key is pressed continuously
 			IsRunning = true;
 		}
 
 		if (Input.GetKeyDown (KeyCode.V)) {
-			myAnimator.SetTrigger ("throw");
+			MyAnimator.SetTrigger ("throw");
 		}
 	}
 
@@ -165,9 +165,9 @@ public class Player : Character {
 	private void HandleLayers()
 	{
 		if (!OnGround) {
-			myAnimator.SetLayerWeight (1, 1); //Layer weight is set to 1 and Layer number 1 refers to AirLayer
+			MyAnimator.SetLayerWeight (1, 1); //Layer weight is set to 1 and Layer number 1 refers to AirLayer
 		}else{
-			myAnimator.SetLayerWeight (1, 0); //0 refers to GroundLayer
+			MyAnimator.SetLayerWeight (1, 0); //0 refers to GroundLayer
 		}
 	}
 

@@ -5,9 +5,10 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour {
 
 	//protected variables can only be accessed from the class itself and the inherited class
-	protected Animator myAnimator;
 	protected bool facingRight;
-	[SerializeField]
+    public Animator MyAnimator { get; private set; }
+
+    [SerializeField]
 	protected float WalkingSpeed{ get; set;}
 	public bool Attack{ get; set;}
 
@@ -15,7 +16,7 @@ public abstract class Character : MonoBehaviour {
 	// Use this for initialization
 	public virtual void Start () {
 		facingRight = true;
-		myAnimator = GetComponent<Animator> ();
+		MyAnimator = GetComponent<Animator> ();
 		WalkingSpeed=4;
 		
 	}
