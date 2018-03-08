@@ -2,25 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackBehaviour : StateMachineBehaviour {
+public class HurtBehaviour : StateMachineBehaviour {
 
 	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-
-        animator.GetComponent<Character>().Attack = true; // checks for both player and enemy
-
-        animator.SetFloat("speed", 0); //player does not need this, its for enemy
-
-        if (animator.tag == "Player") // only executes if the character is Player
-        {
-            //Player stops if he is attacking
-            if (Player.Instance.OnGround)
-            {
-                Player.Instance.MyRigidbody.velocity = Vector2.zero;
-            }
-        }
-
-		
+        animator.GetComponent<Character>().TakingDamage = true;	
 	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -30,10 +16,8 @@ public class AttackBehaviour : StateMachineBehaviour {
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
 	override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        animator.GetComponent<Character>().Attack = false;
-        animator.ResetTrigger ("attack");
-		animator.ResetTrigger ("throw");
-	}
+        animator.GetComponent<Character>().TakingDamage = false;
+    }
 
 	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
 	//override public void OnStateMove(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {

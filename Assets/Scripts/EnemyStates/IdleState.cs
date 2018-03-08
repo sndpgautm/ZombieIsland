@@ -9,7 +9,7 @@ public class IdleState : IEnemyState
     //contains the time the enemy has been idle and is used to change the states if the threshold is crossed
     private float idleTimer;
 
-    private float idleDuration = 5;
+    private float idleDuration = 4;
 
     public void Enter(Enemy givenEnemy)
     {
@@ -18,8 +18,11 @@ public class IdleState : IEnemyState
 
     public void Execute()
     {
-        Debug.Log("Idle");
         Idle();
+        if (enemy.Target != null)
+        {
+            enemy.ChangeState(new PatrolState());
+        }
     }
 
     public void Exit()

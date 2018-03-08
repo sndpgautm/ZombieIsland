@@ -43,7 +43,16 @@ public class Player : Character {
 	public bool Jump { get; set;}
 	public bool OnGround{ get; set;}
 	public bool IsRunning{ get; set;}
-	private Vector2 startPos;
+
+    public override bool IsDead
+    {
+        get
+        {
+            return health <= 0; //returns true
+        }
+    }
+
+    private Vector2 startPos;
 
 
 	// Use this for initialization
@@ -191,4 +200,8 @@ public class Player : Character {
 
 	}
 
+    public override IEnumerator TakeDamage()
+    {
+        return null;
+    }
 }

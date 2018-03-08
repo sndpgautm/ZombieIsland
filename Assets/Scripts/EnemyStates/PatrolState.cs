@@ -6,7 +6,7 @@ public class PatrolState : IEnemyState
 {
     private Enemy enemy;
     private float patrolTimer;
-    private float patrolDuration = 10;
+    private float patrolDuration = 7;
 
 
     public void Enter(Enemy givenEnemy)
@@ -16,9 +16,12 @@ public class PatrolState : IEnemyState
 
     public void Execute()
     {
-        Debug.Log("patroling");
         Patrol();
         enemy.Move();
+        if (enemy.Target != null && enemy.InMeleeRange)
+        {
+            enemy.ChangeState(new MeleeState());
+        }
     }
 
     public void Exit()
@@ -27,6 +30,10 @@ public class PatrolState : IEnemyState
 
     public void OnTriggerEnter(Collider2D other)
     {
+        if (other.tag == "Edge")
+        {
+            enemy.ChangeDirection();
+        }
     }
 
     private void Patrol()
