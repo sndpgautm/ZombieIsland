@@ -6,7 +6,8 @@ public class HurtBehaviour : StateMachineBehaviour {
 
 	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-        animator.GetComponent<Character>().TakingDamage = true;	
+        animator.GetComponent<Character>().TakingDamage = true;
+        animator.GetComponent<Rigidbody2D>().velocity = Vector2.zero; // makes sure we are not moving when we are taking damage
 	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

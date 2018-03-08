@@ -10,6 +10,8 @@ public class Enemy : Character {
     public GameObject Target { get; set; }
     [SerializeField]
     private float meleeRange;
+    [SerializeField]
+    private EdgeCollider2D enemyHandCollider;
     public bool InMeleeRange
     {
         get
@@ -28,6 +30,14 @@ public class Enemy : Character {
         get
         {
             return health <= 0; //return true
+        }
+    }
+
+    public EdgeCollider2D EnemyHandCollider
+    {
+        get
+        {
+            return enemyHandCollider;
         }
     }
 
@@ -103,6 +113,13 @@ public class Enemy : Character {
         return facingRight ? Vector2.right : Vector2.left;
     }
 
+    //enemy attacks with hand
+    public void MeleeAttack()
+    {
+        EnemyHandCollider.enabled = true;
+    }
+
+
     public override void  OnTriggerEnter2D(Collider2D other)
     {
         base.OnTriggerEnter2D(other);
@@ -116,6 +133,7 @@ public class Enemy : Character {
         if (!IsDead)
         {
             MyAnimator.SetTrigger("damage");
+
         }
         else
         {

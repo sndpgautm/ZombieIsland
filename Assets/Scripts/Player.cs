@@ -65,7 +65,20 @@ public class Player : Character {
 	
 	// Update is called once per frame
 	void Update(){
-		HandleInput ();
+
+        if (!TakingDamage && !IsDead) // makes sure we cannot move when we take hit from enemy
+        {
+            if (transform.position.y <= -14f)
+            {
+                MyRigidbody.velocity = Vector2.zero;
+                transform.position = startPos;
+            }
+
+            HandleInput();
+        }
+
+
+		
 	}
 
 
@@ -73,12 +86,16 @@ public class Player : Character {
 
 	void FixedUpdate () 
 	{
-		float horizontal = Input.GetAxis ("Horizontal");
-		OnGround = IsGrounded ();
-		HandleMovement (horizontal);
-		Flip (horizontal);
-		HandleLayers();
-		ResetValues ();
+        if (!TakingDamage && !IsDead)
+        {
+            float horizontal = Input.GetAxis("Horizontal");
+            OnGround = IsGrounded();
+            HandleMovement(horizontal);
+            Flip(horizontal);
+            HandleLayers();
+            ResetValues();
+        }
+		
 	}
 
 	//handles the movement of player
@@ -202,6 +219,18 @@ public class Player : Character {
 
     public override IEnumerator TakeDamage()
     {
-        return null;
+        health -= 10;
+
+        if (!IsDead)
+        {
+            MyAnimator.SetTrigger("damage");
+        }
+        else
+        {
+            MyAnimator.SetLayerWeight(1, 0); //makes sure player is in ground no matter which layer he dies
+            MyAnimator.SetTrigger("die");
+        }
+
+        yield return null;
     }
 }

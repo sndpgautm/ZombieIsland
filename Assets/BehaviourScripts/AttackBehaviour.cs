@@ -31,6 +31,7 @@ public class AttackBehaviour : StateMachineBehaviour {
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
 	override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         animator.GetComponent<Character>().Attack = false;
+        animator.GetComponent<Enemy>().EnemyHandCollider.enabled = false; //disables the meleeattack and disables the enemyhandcollider
         animator.ResetTrigger ("attack");
 		animator.ResetTrigger ("throw");
 	}

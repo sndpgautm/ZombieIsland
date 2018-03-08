@@ -12,6 +12,8 @@ public abstract class Character : MonoBehaviour {
     [SerializeField]
 	protected float WalkingSpeed{ get; set;}
 	public bool Attack{ get; set;}
+    [SerializeField]
+    private List<string> damageSources;
     public abstract bool IsDead { get; }
     public bool TakingDamage { get; set; }
     public Animator MyAnimator { get; private set; }
@@ -40,7 +42,7 @@ public abstract class Character : MonoBehaviour {
 
     public virtual void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.tag == "Knife")
+        if(damageSources.Contains(other.tag))
         {
             StartCoroutine(TakeDamage());
         }
