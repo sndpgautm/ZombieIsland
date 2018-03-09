@@ -33,6 +33,9 @@ public abstract class Character : MonoBehaviour {
 
     public abstract IEnumerator TakeDamage();
 
+    //implements the way each character dies
+    public abstract void Death();
+
     //makes the character flip direction
     public void ChangeDirection()
 	{

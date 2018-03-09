@@ -9,10 +9,11 @@ public class IdleState : IEnemyState
     //contains the time the enemy has been idle and is used to change the states if the threshold is crossed
     private float idleTimer;
 
-    private float idleDuration = 4;
+    private float idleDuration;
 
     public void Enter(Enemy givenEnemy)
     {
+        idleDuration = UnityEngine.Random.Range(1, 7);
         this.enemy = givenEnemy;
     }
 
@@ -31,6 +32,10 @@ public class IdleState : IEnemyState
 
     public void OnTriggerEnter(Collider2D other)
     {
+        if (other.tag == "Knife")
+        {
+            enemy.Target = Player.Instance.gameObject; // enemy runs towards player when it is hit at idle state
+        }
     }
 
     private void Idle()

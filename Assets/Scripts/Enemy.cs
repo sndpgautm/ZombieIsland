@@ -41,9 +41,18 @@ public class Enemy : Character {
         }
     }
 
+    private Vector2 startPos;
+    [SerializeField]
+    private Transform leftEdge;
+    [SerializeField]
+    private Transform rightEdge;
+
     // Use this for initialization
     public override void Start () {
         base.Start();
+        startPos = transform.position;
+        Player.Instance.Dead += new DeadEventHandler(RemoveTarget); // Remove target function is called when players dead event is triggered
+
         WalkingSpeed = 2;
         //enemy is set to idle state at start
         ChangeState(new IdleState());
@@ -54,18 +63,27 @@ public class Enemy : Character {
 	// Update is called once per frame
 	void Update () {
 
-        if (!IsDead)
+        if (!IsDead) // if enemy is alive
         {
-            if (!TakingDamage)
+            if (!TakingDamage) // if enemy is not taking damage
             {
+                //executes the current state, this makes the enemy move or attack etc.
                 currentState.Execute();
             }
             
-            LookAtTarget();//works if you attack and enemy and jump around it, enemey also turns around
+            LookAtTarget();//works if you attack an enemy and jump around it, enemey also turns around
         }
         
 		
 	}
+
+
+    //when enemy kills the player he will go into patrol state and stops attacking the player
+    public void RemoveTarget()
+    {
+        Target = null;
+        ChangeState(new PatrolState());
+    }
 
     //Follows the direction of target(player)
     private void LookAtTarget()
@@ -100,10 +118,23 @@ public class Enemy : Character {
 
         if (!Attack) // enemy cannot move if she is attacking
         {
-            MyAnimator.SetFloat("speed", 1);
-            transform.Translate(GetDirection() * (WalkingSpeed * Time.deltaTime)); //deltatime makes sure the enemy moves at same speed in different devices and different framerates
+            if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
+            {
+                MyAnimator.SetFloat("speed", 1);
+                //moves the enemy in right direction
+                transform.Translate(GetDirection() * (WalkingSpeed * Time.deltaTime)); //deltatime makes sure the enemy moves at same speed in different devices and different framerates
 
+            }
+            else if (currentState is PatrolState)
+            {
+                ChangeDirection();
+            }
         }
+
+        
+
+
+        
 
     }
 
@@ -122,7 +153,11 @@ public class Enemy : Character {
 
     public override void  OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("hit");
+        //calls the base on trigger enter
         base.OnTriggerEnter2D(other);
+
+        //calls ontriggerenter on the current state
         currentState.OnTriggerEnter(other);
     }
 
@@ -140,5 +175,15 @@ public class Enemy : Character {
             MyAnimator.SetTrigger("die");
             yield return null;
         }
+    }
+
+
+    //respwaning the enemy
+    public override void Death()
+    {
+        MyAnimator.ResetTrigger("die");
+        MyAnimator.SetTrigger("idle");
+        transform.position = startPos;
+
     }
 }

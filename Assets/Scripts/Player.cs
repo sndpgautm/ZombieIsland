@@ -2,10 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void DeadEventHandler();
+
 public class Player : Character {
 
 
 	private static Player instance;
+
+    public event DeadEventHandler Dead; // enemy can listen to this dead event and when it it triggered enemy knows player is dead
+
 	public static Player Instance
 	{ 
 		get
@@ -37,6 +42,11 @@ public class Player : Character {
 	[SerializeField]
 	private GameObject knifePrefab;
 
+    private bool immortal = false;  //player gets some time where he is immortal when he takes damage
+    private SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private float immortalTime;
 
 	//properties are written different to variables starting with capital letter
 	public Rigidbody2D MyRigidbody { get; set;}
@@ -48,6 +58,11 @@ public class Player : Character {
     {
         get
         {
+            if (health <= 0)
+            {
+                OnDead();
+            }
+            
             return health <= 0; //returns true
         }
     }
@@ -58,8 +73,11 @@ public class Player : Character {
 	// Use this for initialization
 	public override void Start () {
 		base.Start();
-		IsRunning = false;
-		MyRigidbody = GetComponent<Rigidbody2D> ();
+
+        startPos = transform.position;
+        IsRunning = false;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        MyRigidbody = GetComponent<Rigidbody2D> ();
 
 	}
 	
@@ -70,8 +88,7 @@ public class Player : Character {
         {
             if (transform.position.y <= -14f)
             {
-                MyRigidbody.velocity = Vector2.zero;
-                transform.position = startPos;
+                Death();
             }
 
             HandleInput();
@@ -97,6 +114,14 @@ public class Player : Character {
         }
 		
 	}
+
+    public void OnDead()
+    {
+        if (Dead != null)
+        {
+            Dead();
+        }
+    }
 
 	//handles the movement of player
 	private void HandleMovement(float horizontal)
@@ -217,20 +242,52 @@ public class Player : Character {
 
 	}
 
+
+    private IEnumerator IndicateImmortal()
+    {
+        while (immortal)
+        {
+            spriteRenderer.enabled = false;
+            yield return new WaitForSeconds(.1f);
+            spriteRenderer.enabled = true;
+            yield return new WaitForSeconds(.1f);
+
+        }
+    }
+
     public override IEnumerator TakeDamage()
     {
-        health -= 10;
 
-        if (!IsDead)
+        if (!immortal)
         {
-            MyAnimator.SetTrigger("damage");
-        }
-        else
-        {
-            MyAnimator.SetLayerWeight(1, 0); //makes sure player is in ground no matter which layer he dies
-            MyAnimator.SetTrigger("die");
+            health -= 10;
+
+            if (!IsDead)
+            {
+                MyAnimator.SetTrigger("damage");
+                immortal = true;
+                StartCoroutine(IndicateImmortal());
+                yield return new WaitForSeconds(immortalTime);
+
+                immortal = false;
+            }
+            else
+            {
+                MyAnimator.SetLayerWeight(1, 0); //makes sure player is in ground no matter which layer he dies
+                MyAnimator.SetTrigger("die");
+            }
+
+
         }
 
-        yield return null;
+    }
+
+    //used to reswpan player
+    public override void Death()
+    {
+        MyRigidbody.velocity = Vector2.zero; // makes sure player does not move when respwaning
+        MyAnimator.SetTrigger("idle");
+        health = 50;
+        transform.position = startPos;
     }
 }
