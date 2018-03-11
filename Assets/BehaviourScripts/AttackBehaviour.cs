@@ -34,6 +34,7 @@ public class AttackBehaviour : StateMachineBehaviour {
         animator.GetComponent<Enemy>().EnemyHandCollider.enabled = false; //disables the meleeattack and disables the enemyhandcollider
         animator.ResetTrigger ("attack");
 		animator.ResetTrigger ("throw");
+        animator.ResetTrigger("fire");
 	}
 
 	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here

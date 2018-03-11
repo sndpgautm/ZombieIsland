@@ -31,7 +31,7 @@ public class PatrolState : IEnemyState
 
     public void OnTriggerEnter(Collider2D other)
     {
-        if (other.tag == "Knife")
+        if (other.tag == "Knife" || other.tag == "Bullet")
         {
             enemy.Target = Player.Instance.gameObject; // enemy runs towards player when it is hit at idle state
         }

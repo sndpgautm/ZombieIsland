@@ -153,7 +153,6 @@ public class Enemy : Character {
 
     public override void  OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("hit");
         //calls the base on trigger enter
         base.OnTriggerEnter2D(other);
 
@@ -178,12 +177,14 @@ public class Enemy : Character {
     }
 
 
-    //respwaning the enemy
+    
     public override void Death()
     {
-        MyAnimator.ResetTrigger("die");
-        MyAnimator.SetTrigger("idle");
-        transform.position = startPos;
+        ////respwaning the enemy
+        //MyAnimator.ResetTrigger("die");
+        //MyAnimator.SetTrigger("idle");
+        //transform.position = startPos;
+        Destroy(gameObject);
 
     }
 }

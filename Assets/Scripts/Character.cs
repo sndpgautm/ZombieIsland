@@ -48,6 +48,11 @@ public abstract class Character : MonoBehaviour {
         if(damageSources.Contains(other.tag))
         {
             StartCoroutine(TakeDamage());
+            // makes sure the bullet hits only one enemy until he is dead
+            if (other.tag == "Bullet" && !IsDead) 
+            {
+                DestroyObject(other.gameObject);
+            }
         }
     }
 

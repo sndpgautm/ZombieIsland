@@ -8,6 +8,8 @@ TagManager:
   - Knife
   - EnemyHand
   - Enemy
+  - Bullet
+  - Spike
   layers:
   - Default
   - TransparentFX
