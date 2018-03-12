@@ -29,7 +29,7 @@ public class Enemy : Character {
     {
         get
         {
-            return health <= 0; //return true
+            return healthStat.CurrentVal <= 0; //return true
         }
     }
 
@@ -46,6 +46,8 @@ public class Enemy : Character {
     private Transform leftEdge;
     [SerializeField]
     private Transform rightEdge;
+    private Canvas healthCanvas;
+    private bool dropItem = true;
 
     // Use this for initialization
     public override void Start () {
@@ -56,6 +58,7 @@ public class Enemy : Character {
         WalkingSpeed = 2;
         //enemy is set to idle state at start
         ChangeState(new IdleState());
+        healthCanvas = transform.GetComponentInChildren<Canvas>();
 	}
 
     
@@ -83,6 +86,18 @@ public class Enemy : Character {
     {
         Target = null;
         ChangeState(new PatrolState());
+    }
+    //makes the character flip direction
+    public  override void ChangeDirection()
+    {
+        
+        facingRight = !facingRight;
+        Vector3 newCanvasT = healthCanvas.transform.position; // deletes the canvas before turning 
+        healthCanvas.transform.SetParent(null);
+        transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+        healthCanvas.transform.SetParent(this.transform); // assigns the canvas again
+        healthCanvas.transform.position = newCanvasT;
+
     }
 
     //Follows the direction of target(player)
@@ -127,8 +142,10 @@ public class Enemy : Character {
             }
             else if (currentState is PatrolState)
             {
+                Target = null;
                 ChangeDirection();
             }
+            
         }
 
         
@@ -162,7 +179,11 @@ public class Enemy : Character {
 
     public override IEnumerator TakeDamage()
     {
-        health -= 10;
+        if (!healthCanvas.isActiveAndEnabled)
+        {
+            healthCanvas.enabled = true;
+        }
+        healthStat.CurrentVal -= 10;
 
         if (!IsDead)
         {
@@ -171,6 +192,16 @@ public class Enemy : Character {
         }
         else
         {
+            if(dropItem)
+            {
+                GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x, transform.position.y + 2), Quaternion.identity);
+                //makes sure the collision between our enemy and coin is ignored
+                Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                // makes sure the player cannot jump over enemies whne they are dead
+                Physics2D.IgnoreCollision(Player.Instance.GetComponent<Collider2D>(), GetComponent <Collider2D>());
+            }
+            dropItem = false;
+            
             MyAnimator.SetTrigger("die");
             yield return null;
         }
@@ -181,10 +212,13 @@ public class Enemy : Character {
     public override void Death()
     {
         ////respwaning the enemy
+        //dropItem = true;
         //MyAnimator.ResetTrigger("die");
         //MyAnimator.SetTrigger("idle");
         //transform.position = startPos;
+        healthCanvas.enabled = false; // disables the canvas when the enemy dies
         Destroy(gameObject);
+
 
     }
 }

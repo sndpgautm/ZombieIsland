@@ -9,7 +9,11 @@ public class Player : Character {
 
     private static Player instance;
 
+
+    private Vector2 startPos;
+
     public event DeadEventHandler Dead; // enemy can listen to this dead event and when it it triggered enemy knows player is dead
+
 
     public static Player Instance
     {
@@ -57,21 +61,21 @@ public class Player : Character {
     public bool Jump { get; set; }
     public bool OnGround { get; set; }
     public bool IsRunning { get; set; }
+    public int knifeAmount { get; set; }
 
     public override bool IsDead
     {
         get
         {
-            if (health <= 0)
+            if (healthStat.CurrentVal <= 0)
             {
                 OnDead();
             }
 
-            return health <= 0; //returns true
+            return healthStat.CurrentVal <= 0; //returns true
         }
     }
 
-    private Vector2 startPos;
 
 
     // Use this for initialization
@@ -82,6 +86,7 @@ public class Player : Character {
         IsRunning = false;
         spriteRenderer = GetComponent<SpriteRenderer>();
         MyRigidbody = GetComponent<Rigidbody2D>();
+        this.knifeAmount = 5;
 
     }
 
@@ -174,10 +179,14 @@ public class Player : Character {
         }
 
         if (Input.GetKeyDown(KeyCode.V)) {
-            MyAnimator.SetTrigger("throw");
+            if(knifeAmount > 0)
+            {
+                MyAnimator.SetTrigger("throw");
+            }
+           
         }
 
-        if (Input.GetKeyDown(KeyCode.F)) {
+        if (Input.GetKeyDown(KeyCode.X)) {
             MyAnimator.SetTrigger("fire");
         }
     }
@@ -254,20 +263,24 @@ public class Player : Character {
 	//Throws knife
 	public void ThrowKnife(int value)
 	{
-		//makes sure we only throw one knife at a time
-		if (!OnGround && value == 1 || OnGround && value == 0) 
-		{
-			if (facingRight)
-			{
+            //makes sure we only throw one knife at a time
+            if (!OnGround && value == 1 || OnGround && value == 0)
+            {
+                if (facingRight)
+                {
 
-				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position , Quaternion.Euler(new Vector3(180,0,-90))); // rotates the knife
-				tmp.GetComponent<Knife>().Initialize(Vector2.right);
-			} else 
-			{
-				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position, Quaternion.Euler(new Vector3(0,0,90)));
-				tmp.GetComponent<Knife>().Initialize(Vector2.left);
-			}
-		}
+                    GameObject tmp = (GameObject)Instantiate(knifePrefab, knifePos.position, Quaternion.Euler(new Vector3(180, 0, -90))); // rotates the knife
+                    tmp.GetComponent<Knife>().Initialize(Vector2.right);
+                }
+                else
+                {
+                    GameObject tmp = (GameObject)Instantiate(knifePrefab, knifePos.position, Quaternion.Euler(new Vector3(0, 0, 90)));
+                    tmp.GetComponent<Knife>().Initialize(Vector2.left);
+                }
+            }
+
+            knifeAmount--;
+		
 
 	}
 
@@ -290,7 +303,7 @@ public class Player : Character {
         //if player touches spike traps he dies instantly
         if (other.tag == "Spike")
         {
-            health = 0;
+            healthStat.CurrentVal = 0;
             MyAnimator.SetLayerWeight(1, 0);
             MyAnimator.SetTrigger("die");
         }
@@ -301,7 +314,7 @@ public class Player : Character {
 
         if (!immortal)
         {
-            health -= 10;
+            healthStat.CurrentVal -= 10;
 
             if (!IsDead)
             {
@@ -328,7 +341,17 @@ public class Player : Character {
     {
         MyRigidbody.velocity = Vector2.zero; // makes sure player does not move when respwaning
         MyAnimator.SetTrigger("idle");
-        health = 100;
+        healthStat.CurrentVal = healthStat.MaxVal;
+        Application.LoadLevel(Application.loadedLevel);
         transform.position = startPos;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.gameObject.tag == "Coin")
+        {
+            GameManager.Instance.CollectedCoins++;
+            Destroy(other.gameObject);
+        }
     }
 }
