@@ -5,7 +5,7 @@ using UnityEngine;
 public class MeleeState : IEnemyState {
 
     private float attackTimer;
-    private float attackCooldown = 1;
+    private float attackCooldown = 0.7f;
     private bool canAttack = true;
     private Enemy enemy;
     public void Enter(Enemy givenEnemy)

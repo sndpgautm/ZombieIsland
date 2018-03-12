@@ -6,8 +6,10 @@ public abstract class Character : MonoBehaviour {
 
     //protected variables can only be accessed from the class itself and the inherited class
     protected bool facingRight;
+
+//Character's health
     [SerializeField]
-    protected int health;
+    protected Stat healthStat;
 
     [SerializeField]
 	protected float WalkingSpeed{ get; set;}
@@ -23,8 +25,9 @@ public abstract class Character : MonoBehaviour {
 		facingRight = true;
 		MyAnimator = GetComponent<Animator> ();
 		WalkingSpeed=4;
-		
-	}
+        healthStat.Initialize();
+
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -37,7 +40,7 @@ public abstract class Character : MonoBehaviour {
     public abstract void Death();
 
     //makes the character flip direction
-    public void ChangeDirection()
+    public virtual void ChangeDirection()
 	{
 		facingRight = !facingRight;
 		transform.localScale = new Vector3 (transform.localScale.x *-1, transform.localScale.y,transform.localScale.z);

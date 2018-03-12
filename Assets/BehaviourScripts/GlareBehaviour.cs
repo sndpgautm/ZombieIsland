@@ -2,33 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeathBehaviour : StateMachineBehaviour {
+public class GlareBehaviour : StateMachineBehaviour {
 
-    private float respwanTime = 4;
-    private float deathTimer;
-
+    private float glareTime = 3;
+    private float elapsed;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        deathTimer = 0;
+        elapsed = 0;
     }
 
-    // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
+    //OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        deathTimer += Time.deltaTime;
+        elapsed += Time.deltaTime;
 
-        if (deathTimer >= respwanTime)
+        if(elapsed >= glareTime)
         {
-            deathTimer = 0;
-            animator.GetComponent<Character>().Death();
+            animator.SetTrigger("glare");
         }
+
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
-    //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-    //
+    //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    //{
     //}
 
     // OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
